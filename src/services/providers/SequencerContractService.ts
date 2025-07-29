@@ -1,5 +1,4 @@
-import { Contract } from "ethers";
-
+import {Contract} from "ethers";
 
 export class SequencerContractService {
     constructor(private readonly contract: Contract) {}

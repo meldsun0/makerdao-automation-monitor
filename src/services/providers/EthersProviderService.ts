@@ -7,7 +7,6 @@ const SEQUENCER_ABI = [
     "function numJobs() view returns (uint256)",
     "function jobAt(uint256) view returns (address)",
     "function getMaster() view returns (bytes32)",
-    "function isMaster(bytes32) view returns (bool)"
 ];
 
 export class ProviderService implements IProviderService {
@@ -60,4 +59,5 @@ export class ProviderService implements IProviderService {
     public getSequencerContractService(): SequencerContractService {
         return new SequencerContractService(this.sequencerContract);
     }
+    
 }
