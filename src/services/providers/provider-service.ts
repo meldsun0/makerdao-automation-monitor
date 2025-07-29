@@ -1,6 +1,5 @@
 import {Contract, ethers} from "ethers";
-import {IProviderService} from "./IProviderService";
-import {SequencerContractService} from "./SequencerContractService";
+import {ProviderServiceInterface} from "./provider-service-interface";
 
 
 const SEQUENCER_ABI = [
@@ -9,8 +8,8 @@ const SEQUENCER_ABI = [
     "function getMaster() view returns (bytes32)",
 ];
 
-export class ProviderService implements IProviderService {
-    private provider: ethers.JsonRpcProvider;
+export class ProviderService implements ProviderServiceInterface {
+    private readonly provider: ethers.JsonRpcProvider;
     private readonly sequencerContract: Contract;
 
     constructor(rpcUrl: string, sequencerAddress: string) {
@@ -25,7 +24,6 @@ export class ProviderService implements IProviderService {
             this.provider
         );
     }
-
 
     async getCurrentBlockNumber(): Promise<number> {
         try {
@@ -45,19 +43,11 @@ export class ProviderService implements IProviderService {
         }
     }
 
-    async getBlockTimestamp(blockNumber: number): Promise<number> {
-        try {
-            const block = await this.provider.getBlock(blockNumber);
-            if (!block) throw new Error("Block not found");
-            return block.timestamp;
-        } catch (error) {
-            console.error("Failed to get block timestamp:", error);
-            throw error;
-        }
+    public async numJobs(): Promise<number> {
+        return await this.sequencerContract.numJobs();
     }
 
-    public getSequencerContractService(): SequencerContractService {
-        return new SequencerContractService(this.sequencerContract);
+    public async jobAt(index: number): Promise<string> {
+        return await this.sequencerContract.jobAt(index);
     }
-    
 }
