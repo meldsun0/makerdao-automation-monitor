@@ -13,11 +13,15 @@ export class Job {
         this.abi = abi;
     }
 
+
     public insertExecutedBlock(blockNumber: number): void {
+        if (this.executedBlocks.includes(blockNumber)) {
+            return;
+        }
         const index = this.executedBlocks.findIndex(b => b < blockNumber);
         if (index === -1) {
             this.executedBlocks.push(blockNumber);
-        } else if (this.executedBlocks[index - 1] !== blockNumber) {
+        } else {
             this.executedBlocks.splice(index, 0, blockNumber);
         }
     }
@@ -40,6 +44,7 @@ export class Job {
             return;
         }
         for (const log of logs) {
+            console.log(log)
             try {
                 const parsed = this.abi.parseLog(log);
                 if (!parsed) {
