@@ -1,6 +1,7 @@
 import "dotenv/config";
 import {IProviderService} from "./services/providers/IProviderService";
 import {ProviderService} from "./services/providers/EthersProviderService";
+import {JobMonitorService} from "./services/JobMonitor";
 
 const rpcUrl = process.env.RPC_URL!;
 const sequencerAddress = process.env.SEQUENCER_ADDRESS!;
@@ -11,7 +12,11 @@ const providerService: IProviderService = new ProviderService(rpcUrl, sequencerA
     console.log("Starting Maker Job Monitor...");
     const block = await providerService.getCurrentBlockNumber();
     console.log("Current block:", block);
+    const monitor = new JobMonitorService(providerService);
+    await monitor.initSync();
 })();
+
+
 
 
 
