@@ -8,7 +8,7 @@ import LerpJob from "abis/jobs/LerpJob.json";
 import ClipperMomJob from "abis/jobs/ClipperMomJob.json";
 import ThresholdSteward from "abis/jobs/PSMThresholdSteward.json";
 
-import { Job } from "../model/Job";
+import { Job } from "../model/job";
 
 function createJobEntry(address: string, name: string, abiJson: any): [string, Job] {
     return [
@@ -28,7 +28,12 @@ export const JobRegistry: Record<string, Job> = Object.fromEntries([
     createJobEntry("0x6464C34A02DD155dd0c630CE233DD6e21C24F9A5", "ThresholdSteward", ThresholdSteward),
 ]);
 
-export function createJobFromAddress(address: string): Job | null {
+export function createJobFromAddress(address: string): Job | undefined {
     const normalized = address.trim().toLowerCase();
-    return JobRegistry[normalized] ?? null;
+    const job = JobRegistry[normalized];
+    if (!job) {
+        console.warn(`No ABI or job registered for address: ${address}`);
+        return undefined;
+    }
+    return job;
 }

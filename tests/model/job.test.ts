@@ -1,5 +1,5 @@
 import {Interface, Log, LogParams} from "ethers";
-import {Job} from "../../src/model/Job";
+import {Job} from "../../src/model/job";
 import any = jasmine.any;
 
 

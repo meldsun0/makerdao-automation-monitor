@@ -13,6 +13,9 @@ export class Job {
         this.abi = abi;
     }
 
+    public getName(): string {
+        return this.name;
+    }
 
     public insertExecutedBlock(blockNumber: number): void {
         if (this.executedBlocks.includes(blockNumber)) {
@@ -40,11 +43,10 @@ export class Job {
 
     public recordExecutedBlocksFromLogs(logs: Log[]) {
         if (logs.length === 0) {
-            //console.log(`No logs found for ${this.name}`);
+            console.log(`No logs found for ${this.name}`);
             return;
         }
         for (const log of logs) {
-            console.log(log)
             try {
                 const parsed = this.abi.parseLog(log);
                 if (!parsed) {
