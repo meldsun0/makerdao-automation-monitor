@@ -94,3 +94,16 @@ npm test
 | `npm run build`| Compile TypeScript to JavaScript in `dist/`      |
 | `npm start`    | Run compiled JS from `dist/index.js`             |
 | `npm test`     | Run all unit tests using `jest`                  |
+
+
+### Caveats
+### Testing on Other Networks
+This project was originally designed to monitor **MakerDAO Keeper jobs on Ethereum Mainnet**. It includes **hardcoded ABIs and job addresses** that are specific to Mainnet deployments.
+
+If you want to test or deploy this monitor on a testnet, keep in mind:
+
+- **Mainnet job contracts may not exist on testnets**, or may differ in logic and address.
+- If you keep using Mainnet job ABIs and addresses, **log parsing or contract calls will fail**.
+
+
+
