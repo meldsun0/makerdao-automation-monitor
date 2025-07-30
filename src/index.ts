@@ -1,7 +1,7 @@
 import "dotenv/config";
 import {ProviderServiceInterface} from "./services/providers/provider-service-interface";
 import {ProviderService} from "./services/providers/provider-service";
-import {JobMonitorService} from "./services/JobMonitor";
+import {JobMonitorService} from "./services/job-monitor";
 
 const rpcUrl = process.env.RPC_URL!;
 const sequencerAddress = process.env.SEQUENCER_ADDRESS!;

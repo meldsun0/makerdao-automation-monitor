@@ -1,4 +1,4 @@
-import {AlertServiceInterface} from "./alert-service.interface";
+import {AlertServiceInterface} from "./alert-service-interface";
 
 export class DiscordAlertService implements AlertServiceInterface {
 
