@@ -65,7 +65,22 @@ SEQUENCER_ADDRESS=0x238b4E35dAed6100C6162fAE4510261f88996EC9
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your_webhook
  ```    
 ---
-### Testing:
+### Docker
+
+Make sure the following exist in your local project **before building the image**:
+
+- `dist/` folder with compiled `.js` files: Run `npm run build` to generate it
+- `node_modules/` with installed dependencies: Run `npm install` to populate it)
+- `.env` file with your environment configuration
+- `package.json` for metadata and runtime dependencies
+
+```bash
+docker build -t maker-job-monitor .
+docker run  maker-job-monitor
+```
+
+---
+### Testing
 ```bash
 npm test
 ```
