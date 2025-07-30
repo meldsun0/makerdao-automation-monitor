@@ -11,7 +11,7 @@ const providerService: ProviderServiceInterface = new ProviderService(rpcUrl, se
 (async function main() {
     const currentBlock = await providerService.getCurrentBlockNumber();
     console.log(`Starting Maker Job Monitor at block  ${currentBlock} `);
-    const monitor = new JobMonitorService(providerService, currentBlock);
+    const monitor = new JobMonitorService(providerService, currentBlock, true);
     await monitor.initSync();
 })();
 

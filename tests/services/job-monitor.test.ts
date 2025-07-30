@@ -3,7 +3,7 @@ import {ProviderServiceInterface} from "../../src/services/providers/provider-se
 import {Job} from "../../src/model/job";
 import {JobMonitorService} from "../../src/services/job-monitor";
 
-jest.mock("../src/services/alerts/discord-alert-service", () => {
+jest.mock("../../src/services/alerts/discord-alert-service", () => {
     return {
         DiscordAlertService: jest.fn().mockImplementation(() => mockAlertService),
     };
@@ -29,7 +29,7 @@ const mockJob: jest.Mocked<Job> = {
     getName: jest.fn().mockReturnValue("TestJob"),
 } as unknown as jest.Mocked<Job>;
 
-jest.mock("../src/config/jobs-abi-loader", () => ({
+jest.mock("../../src/config/jobs-abi-loader", () => ({
     createJobFromAddress: jest.fn(() => mockJob),
 }));
 
@@ -44,7 +44,7 @@ describe("JobMonitorService", () => {
         mockProviderService.getLogs.mockResolvedValue([]);
         mockJob.getLatestExecutedBlock.mockReturnValue(null);
 
-        const service = new JobMonitorService(mockProviderService, 2000);
+        const service = new JobMonitorService(mockProviderService, 2000,false);
         await service.initSync();
 
         expect(mockAlertService.sendAlert).toHaveBeenCalledWith("TestJob", null, 2000);
@@ -56,7 +56,7 @@ describe("JobMonitorService", () => {
         mockProviderService.getLogs.mockResolvedValue([]);
         mockJob.getLatestExecutedBlock.mockReturnValue(900);
 
-        const service = new JobMonitorService(mockProviderService, 2000);
+        const service = new JobMonitorService(mockProviderService, 2000, false);
         await service.initSync();
 
         expect(mockAlertService.sendAlert).toHaveBeenCalledWith("TestJob", 900, 2000);
@@ -68,7 +68,7 @@ describe("JobMonitorService", () => {
         mockProviderService.getLogs.mockResolvedValue([]);
         mockJob.getLatestExecutedBlock.mockReturnValue(1995);
 
-        const service = new JobMonitorService(mockProviderService, 2000);
+        const service = new JobMonitorService(mockProviderService, 2000, false);
         await service.initSync();
 
         expect(mockAlertService.sendAlert).not.toHaveBeenCalled();

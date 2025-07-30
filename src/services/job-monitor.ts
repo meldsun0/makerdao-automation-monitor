@@ -14,11 +14,14 @@ export class JobMonitorService {
 
     private readonly jobsMap: Map<string, Job> = new Map();
     private readonly alertService: AlertServiceInterface;
+    private readonly enablePolling: boolean;
     private currentBlock: number;
 
-    constructor(private readonly providerService: ProviderServiceInterface, currentBlock: number) {
+    constructor(private readonly providerService: ProviderServiceInterface, currentBlock: number,
+                enablePolling: boolean ) {
         this.currentBlock = currentBlock;
         this.alertService = new DiscordAlertService();
+        this.enablePolling = enablePolling;
     }
 
     public async initSync(): Promise<void> {
@@ -26,7 +29,9 @@ export class JobMonitorService {
         await this.trackAndUpdateJobsInRange(fromBlock + 1, this.currentBlock);
         this.printTableRow();
         await this.checkJobExecutionAndAlert();
-        this.startPolling();
+        if (this.enablePolling) {
+            this.startPolling();
+        }
     }
 
     private async checkJobExecutionAndAlert(): Promise<void> {
@@ -63,21 +68,25 @@ export class JobMonitorService {
     private async trackAndUpdateJobsInRange(fromBlock: number, toBlock: number): Promise<void> {
         const jobCount = await this.providerService.numJobs();
         console.log(`Polling ${jobCount} jobs from block ${fromBlock} to ${toBlock}`);
-
+        let jobAddress: string | undefined;
         for (let i = 0; i < jobCount; i++) {
-            const jobAddress = (await this.providerService.jobAt(i)).toLowerCase();
-            let job = this.jobsMap.get(jobAddress);
-            if (!job) {
-                job = createJobFromAddress(jobAddress);
-                if (!job) continue;
-
-                this.jobsMap.set(jobAddress, job);
-                console.log(`New job detected and tracked: ${job.getName()} (${jobAddress})`);
+            try {
+                jobAddress = (await this.providerService.jobAt(i)).toLowerCase();
+                let job = this.jobsMap.get(jobAddress);
+                if (!job) {
+                    job = createJobFromAddress(jobAddress);
+                    if (!job){
+                        console.warn(`Skipping unrecognized job address: ${jobAddress}`);
+                        continue;
+                    }
+                    this.jobsMap.set(jobAddress, job);
+                }
+                const logs = await this.fetchJobLogs(job, fromBlock, this.currentBlock);
+                job.recordExecutedBlocksFromLogs(logs);
+                await this.sleep(JobMonitorService.DELAY_MS);
+            }catch (err){
+                console.error(`Error processing job at index ${i} (address: ${jobAddress ?? "unknown"}):`, err);
             }
-            const logs = await this.fetchJobLogs(job, fromBlock, this.currentBlock);
-            job.recordExecutedBlocksFromLogs(logs);
-
-            await this.sleep(JobMonitorService.DELAY_MS);
         }
     }
 
