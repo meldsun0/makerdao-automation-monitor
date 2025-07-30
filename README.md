@@ -1,54 +1,81 @@
-# Challenge: Automation Workable Alert
+# Automation Workable Alert
+
+This is a long-running **Node.js** process that monitors **MakerDAO Keeper jobs** and sends a **Discord alert** if any job hasn’t been worked in the last **1000 consecutive blocks**.
+
+Built with **TypeScript**, **ethers.js**, and **ts-node**, the service is designed for decentralized monitoring of on-chain automation infrastructure.
+
+---
 
 ## **Context**
 
-MakerDAO has several jobs which require onchain automation. In interest of decentralisation they have built a `Sequencer`(https://github.com/makerdao/dss-cron/blob/master/src/Sequencer.sol), in charge of supporting multiple Keeper Networks to work.
+MakerDAO has several jobs which require onchain automation. In interest of decentralisation they have built a Sequencer(https://github.com/makerdao/dss-cron/blob/master/src/Sequencer.sol), in charge of supporting multiple Keeper Networks to work.
 
-Keeper Networks will be required to watch the `activeJobs` array in the `Sequencer` and find all instances of available jobs. All jobs will be deployed contracts which implement the IJob interface (https://github.com/makerdao/dss-cron/blob/master/src/interfaces/IJob.sol).
+Keeper Networks will be required to watch the activeJobs array in the Sequencer and find all instances of available jobs. All jobs will be deployed contracts which implement the IJob interface (https://github.com/makerdao/dss-cron/blob/master/src/interfaces/IJob.sol).
 
-It is important that the `work` function succeeds **if and only if** the `workable` function returns a valid execution.
 
-## Contracts
+This offchain tool watches those jobs and reports when any of them haven't been worked in the last **1000 consecutive blocks**.
 
-Sequencer: https://etherscan.io/address/0x238b4E35dAed6100C6162fAE4510261f88996EC9#code
+---
+### Sequencer
 
-## Challenge goal
+- [0x238b4E35dAed6100C6162fAE4510261f88996EC9](https://etherscan.io/address/0x238b4E35dAed6100C6162fAE4510261f88996EC9#code)
 
-Choose one of the following:
+### Active Jobs
 
-### Option 1: AWS Lambda Function
+| Name            | Address |
+|-----------------|---------|
+| AutoLineJob     | [0x67AD4000e73579B9725eE3A149F85C4Af0A61361](https://etherscan.io/address/0x67AD4000e73579B9725eE3A149F85C4Af0A61361#code) |
+| LerpJob         | [0x8F8f2FC1F0380B9Ff4fE5c3142d0811aC89E32fB](https://etherscan.io/address/0x8F8f2FC1F0380B9Ff4fE5c3142d0811aC89E32fB#code) |
+| D3MJob          | [0x2Ea4aDE144485895B923466B4521F5ebC03a0AeF](https://etherscan.io/address/0x2Ea4aDE144485895B923466B4521F5ebC03a0AeF#code) |
+| ClipperMomJob   | [0x7E93C4f61C8E8874e7366cDbfeFF934Ed089f9fF](https://etherscan.io/address/0x7E93C4f61C8E8874e7366cDbfeFF934Ed089f9fF#code) |
+| OracleJob       | [0xe717Ec34b2707fc8c226b34be5eae8482d06ED03](https://etherscan.io/address/0xe717Ec34b2707fc8c226b34be5eae8482d06ED03#code) |
+| FlapJob         | [0xc32506E9bB590971671b649d9B8e18CB6260559F](https://etherscan.io/address/0xc32506E9bB590971671b649d9B8e18CB6260559F#code) |
 
-- Objective: Develop an AWS Lambda function using TypeScript.
-- Functionality: The function should run every 5 minutes and send a Discord alert if any Maker job hasn’t been worked for the past 10 consecutive blocks.
+### Other Jobs Identified
 
-### Option 2: NodeJS Process with Docker
+| Name                | Address |
+|---------------------|---------|
+| LitePsmJob          | [0x0c86162ba3e507592fc8282b07cf18c7f902c401](https://etherscan.io/address/0x0c86162ba3e507592fc8282b07cf18c7f902c401#code) |
+| CronRewardsDistJob  | [0x6464c34a02dd155dd0c630ce233dd6e21c24f9a5](https://etherscan.io/address/0x6464c34a02dd155dd0c630ce233dd6e21c24f9a5#code) |
 
-- Objective: Develop a long-running NodeJS process using TypeScript.
-- Functionality: The process should send a Discord alert if any Maker job hasn’t been worked for the past 1000 consecutive blocks.
-- Deployment: Use Docker for the deployment.
+---
 
-## Mandatory Requirements
+### Requirements
+To run this project locally, you need:
 
-Regardless of the chosen option, you must utilize the following methods from the Sequencer contract:
+- **Node.js**: `v18.x` or higher
+- **npm**: `v9.x` or higher
+ 
+### Quickstart
 
-- `numJobs()`
-- `jobAt(uint256 _index)`
+```bash
+git clone https://github.com/wonderland-quests/challenge-offchain-meldsun0.git
+cd challenge-offchain-meldsun0
+npm install
+# Edit .env with your RPC and Discord webhook
+npm run dev 
+```
+---
 
-If you choose **Option 2**, you may query 1000 blocks only during the initial setup to bootstrap the system. After this initial query, you must never query 1000 blocks at once again, and must always query fewer than 1000 blocks at a time.
+### Example Configuration
 
-## Criteria
+```yaml
+RPC_URL=https://mainnet.infura.io/v3/YOUR_INFURA_KEY
+SEQUENCER_ADDRESS=0x238b4E35dAed6100C6162fAE4510261f88996EC9
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your_webhook
+ ```    
+---
+### Testing:
+```bash
+npm test
+```
+---
 
-At Wonderland we strive for excellence in every single thing we do. That’s why while looking at your challenge, besides working correctly, we will also take into account:
+### NPM Scripts
 
-- **Efficiency**: Can you reduce those RPC calls? 👀
-- **Best practices**: Good error handling, a modular code structure, and overall awesome code.
-- **Tests, tests, and tests**: You should at least write unit tests to cover the key functionalities.
-- **Documentation**: Does your README explain how to run your project and what it does? Is your code clear and explained?
-
-## Deliverables
-
-A GitHub repository containing the developed code, including instructions on how to set up and run the application.
-
-## Expectations
-
-We expect this challenge to take between 10 to 16 hours of work.
+| Command         | Description                                      |
+|----------------|--------------------------------------------------|
+| `npm run dev`  | Run directly from TypeScript using `ts-node`     |
+| `npm run build`| Compile TypeScript to JavaScript in `dist/`      |
+| `npm start`    | Run compiled JS from `dist/index.js`             |
+| `npm test`     | Run all unit tests using `jest`                  |

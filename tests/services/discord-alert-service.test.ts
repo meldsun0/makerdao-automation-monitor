@@ -3,7 +3,8 @@ import {DiscordAlertService} from "../../src/services/alerts/discord-alert-servi
 
 describe("DiscordAlertService", () => {
     let service: DiscordAlertService;
-    let logSpy: jest.SpyInstance;
+    let buildAlertSpy: jest.SpyInstance;
+    let postMessage: jest.SpyInstance;
 
     const getAlertMap = (): Map<string, number> => {
         return (service as any).alertMap;
@@ -11,36 +12,38 @@ describe("DiscordAlertService", () => {
 
     beforeEach(() => {
         service = new DiscordAlertService();
-        logSpy = jest.spyOn(service as any, "logAlert").mockImplementation(() => {});
+        buildAlertSpy = jest.spyOn(service as any, "buildAlert").mockImplementation(() => {});
+        postMessage = jest.spyOn(service as any, "postMessage").mockImplementation(() => {});
+
     });
 
     afterEach(() => {
-        logSpy.mockRestore();
+        buildAlertSpy.mockRestore();
     });
 
     it("should alert if job has never been alerted and never executed", async () => {
         await service.sendAlert("TestJob", null, 1000);
-        expect(logSpy).toHaveBeenCalledWith("TestJob", null, 1000);
+        expect(buildAlertSpy).toHaveBeenCalledWith("TestJob", null, 1000);
         expect(getAlertMap().get("TestJob")).toBe(-1);
     });
 
     it("should not alert again for a job never executed if already alerted", async () => {
         await service.sendAlert("TestJob", null, 1000);
         await service.sendAlert("TestJob", null, 1100);
-        expect(logSpy).toHaveBeenCalledTimes(1);
+        expect(buildAlertSpy).toHaveBeenCalledTimes(1);
         expect(getAlertMap().get("TestJob")).toBe(-1);
     });
 
     it("should alert if job was executed and not previously alerted", async () => {
         await service.sendAlert("Job1", 900, 1000);
-        expect(logSpy).toHaveBeenCalledWith("Job1", 900, 1000);
+        expect(buildAlertSpy).toHaveBeenCalledWith("Job1", 900, 1000);
         expect(getAlertMap().get("Job1")).toBe(900);
     });
 
     it("should not alert again if same lastExecutedBlock already alerted", async () => {
         await service.sendAlert("Job1", 900, 1000);
         await service.sendAlert("Job1", 900, 1100);
-        expect(logSpy).toHaveBeenCalledTimes(1);
+        expect(buildAlertSpy).toHaveBeenCalledTimes(1);
         expect(getAlertMap().get("Job1")).toBe(900);
     });
 
@@ -52,11 +55,11 @@ describe("DiscordAlertService", () => {
 
         await service.sendAlert("Job1", 950, 1100);
         expect(getAlertMap().get("Job1")).toBe(950);
-        expect(logSpy).toHaveBeenCalledTimes(2);
+        expect(buildAlertSpy).toHaveBeenCalledTimes(2);
 
         await service.sendAlert("Job1", 950, 1200);
 
-        expect(logSpy).toHaveBeenLastCalledWith("Job1", 950, 1100);
+        expect(buildAlertSpy).toHaveBeenLastCalledWith("Job1", 950, 1100);
         expect(getAlertMap().get("Job1")).toBe(950);
     });
 });

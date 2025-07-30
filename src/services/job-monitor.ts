@@ -1,7 +1,7 @@
 import {ProviderServiceInterface} from "./providers/provider-service-interface";
 
 import {Job} from "../model/job";
-import {createJobFromAddress} from "../config/JobsABILoader";
+import {createJobFromAddress} from "../config/jobs-abi-loader";
 import {Log} from "ethers";
 import {AlertServiceInterface} from "./alerts/alert-service-interface";
 import {DiscordAlertService} from "./alerts/discord-alert-service";
@@ -44,7 +44,7 @@ export class JobMonitorService {
             try {
                 const latestBlock = await this.providerService.getCurrentBlockNumber();
                 if (latestBlock <= this.currentBlock + 100){
-                    console.log(`Polling from ${latestBlock} but need to wait till ${this.currentBlock + 100} to update jobMap`);
+                    console.log(`Polling from ${latestBlock} but need to wait till ${this.currentBlock + 40} to update jobMap`);
                     return;
                 }
                 console.log(`Polling from ${latestBlock} to ${this.currentBlock + 1}`);

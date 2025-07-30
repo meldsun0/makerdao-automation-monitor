@@ -12,5 +12,5 @@
     "strict": true,
     "esModuleInterop": true
   },
-  "include": ["src", "abis"]
+  "include": ["src", ".env"]
 }
