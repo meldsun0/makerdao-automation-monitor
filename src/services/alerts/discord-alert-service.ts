@@ -1,5 +1,6 @@
 import {AlertServiceInterface} from "./alert-service-interface";
 import process from "node:process";
+import {logger} from "../../utils/logger";
 
 const discord_web_hook = process.env.DISCORD_WEB_HOOK!;
 
@@ -27,25 +28,23 @@ export class DiscordAlertService implements AlertServiceInterface {
         try {
             const response = await fetch(discord_web_hook, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: message, username: 'Maker Job Monitor' }),
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({content: message, username: 'Maker Job Monitor'}),
             });
 
             if (!response.ok) {
-                console.error(`Maker Job Monitor failed to send alert: ${response.status} ${response.statusText}`);
+                logger.error(`Maker Job Monitor failed to send alert: ${response.status} ${response.statusText}`);
             } else {
-                console.log(`Alert sent:`);
-                console.log(message);
+                logger.info(`Alert sent: ${message}`);
             }
         } catch (error) {
-            console.error(`Maker Job Monitor failed to send alert:`, error);
+            logger.info(`Maker Job Monitor failed to send alert:`, error);
         }
     }
 
-    private buildAlert(jobName: string, lastExecutedBlock: number | null, currentBlock: number): string{
-        return `**${jobName}** has not worked in over 1000 blocks.\n` +
-                `Last executed block: ${lastExecutedBlock ?? "never"}\n` +
-                `Current block: ${currentBlock}`;
+    private buildAlert(jobName: string, lastExecutedBlock: number | null, currentBlock: number): string {
+        return `**${jobName}** has not worked in over 1000 blocks. Last executed block: ${lastExecutedBlock ?? "never"}.`;
+
     }
 
 }

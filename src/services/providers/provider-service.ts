@@ -1,6 +1,6 @@
 import {Contract, ethers} from "ethers";
 import {ProviderServiceInterface} from "./provider-service-interface";
-
+import { logger } from "../../utils/logger";
 
 const SEQUENCER_ABI = [
     "function numJobs() view returns (uint256)",
@@ -29,7 +29,7 @@ export class ProviderService implements ProviderServiceInterface {
         try {
             return await this.provider.getBlockNumber();
         } catch (error) {
-            console.error("Failed to get block number:", error);
+            logger.error("Failed to get block number:", error);
             throw error;
         }
     }
@@ -38,7 +38,7 @@ export class ProviderService implements ProviderServiceInterface {
         try {
             return await this.provider.getLogs(params);
         } catch (error) {
-            console.error("Failed to fetch logs:", error);
+            logger.error("Failed to fetch logs:", error);
             throw error;
         }
     }

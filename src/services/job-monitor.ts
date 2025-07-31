@@ -1,5 +1,5 @@
 import {ProviderServiceInterface} from "./providers/provider-service-interface";
-
+import { logger } from "../utils/logger";
 import {Job} from "../model/job";
 import {createJobFromAddress} from "../config/jobs-abi-loader";
 import {Log} from "ethers";
@@ -11,6 +11,7 @@ export class JobMonitorService {
     private static readonly BLOCK_LIMIT = 1000;
     private static readonly POLLING_INTERVAL_MS =  30 * 1000;
     private static readonly DELAY_MS = 300;
+    private static BLOCK_LAG_THRESHOLD = 40;
 
     private readonly jobsMap: Map<string, Job> = new Map();
     private readonly alertService: AlertServiceInterface;
@@ -22,9 +23,11 @@ export class JobMonitorService {
         this.currentBlock = currentBlock;
         this.alertService = new DiscordAlertService();
         this.enablePolling = enablePolling;
+        this.logConfig();
     }
 
     public async initSync(): Promise<void> {
+        logger.info(`Init sync on Block: ${this.currentBlock}`)
         const fromBlock = this.currentBlock - JobMonitorService.BLOCK_LIMIT;
         await this.trackAndUpdateJobsInRange(fromBlock + 1, this.currentBlock);
         this.printTableRow();
@@ -48,18 +51,17 @@ export class JobMonitorService {
         setInterval(async () => {
             try {
                 const latestBlock = await this.providerService.getCurrentBlockNumber();
-                if (latestBlock <= this.currentBlock + 100){
-                    console.log(`Polling from ${latestBlock} but need to wait till ${this.currentBlock + 40} to update jobMap`);
+                if (latestBlock <= this.currentBlock + JobMonitorService.BLOCK_LAG_THRESHOLD){
+                    logger.info(`Polling from ${this.currentBlock+1} but need to wait till ${this.currentBlock + JobMonitorService.BLOCK_LAG_THRESHOLD} to update jobMap`);
                     return;
                 }
-                console.log(`Polling from ${latestBlock} to ${this.currentBlock + 1}`);
                 await this.trackAndUpdateJobsInRange(this.currentBlock + 1, latestBlock);
                 this.currentBlock = latestBlock;
 
                 this.printTableRow();
                 await this.checkJobExecutionAndAlert();
             } catch (err) {
-                console.error("Polling error:", err);
+                logger.error("Polling error:", err);
             }
         }, JobMonitorService.POLLING_INTERVAL_MS);
     }
@@ -67,7 +69,7 @@ export class JobMonitorService {
 
     private async trackAndUpdateJobsInRange(fromBlock: number, toBlock: number): Promise<void> {
         const jobCount = await this.providerService.numJobs();
-        console.log(`Polling ${jobCount} jobs from block ${fromBlock} to ${toBlock}`);
+        logger.info(`Polling ${jobCount} jobs from block ${fromBlock} to ${toBlock}`);
         let jobAddress: string | undefined;
         for (let i = 0; i < jobCount; i++) {
             try {
@@ -76,7 +78,7 @@ export class JobMonitorService {
                 if (!job) {
                     job = createJobFromAddress(jobAddress);
                     if (!job){
-                        console.warn(`Skipping unrecognized job address: ${jobAddress}`);
+                        logger.error(`Skipping unrecognized job address: ${jobAddress}`);
                         continue;
                     }
                     this.jobsMap.set(jobAddress, job);
@@ -85,7 +87,7 @@ export class JobMonitorService {
                 job.recordExecutedBlocksFromLogs(logs);
                 await this.sleep(JobMonitorService.DELAY_MS);
             }catch (err){
-                console.error(`Error processing job at index ${i} (address: ${jobAddress ?? "unknown"}):`, err);
+                logger.info(`Error processing job at index ${i} (address: ${jobAddress ?? "unknown"}):`, err);
             }
         }
     }
@@ -104,13 +106,20 @@ export class JobMonitorService {
     }
 
     public printTableRow(): void {
-        console.log("┌──────────────────────┬─────────────────────────────────────────────┬─────────────────┬─────────────────────────────────────┐");
-        console.log("│ Job                  │ Address                                     │ Latest Block    │ Executed Blocks                     │");
-        console.log("├──────────────────────┼─────────────────────────────────────────────┼─────────────────┼─────────────────────────────────────┤");
+        logger.info("┌────────────────────┬─────────────────────────────────────────────┬──────────────┬───────────────────────────────────┐");
+        logger.info("│ Job                │ Address                                     │ Latest Block │ Executed Blocks                   │");
+        logger.info("├────────────────────┼─────────────────────────────────────────────┼──────────────┼───────────────────────────────────┤");
 
         for (const job of this.jobsMap.values()) {
             job.printJobInfoRow();
         }
-        console.log("└──────────────────────┴─────────────────────────────────────────────┴─────────────────┴─────────────────────────────────────┘");
+        logger.info("└────────────────────┴─────────────────────────────────────────────┴──────────────┴───────────────────────────────────┘");
+    }
+
+    private logConfig(): void {
+        logger.info(`BLOCK_LIMIT = ${JobMonitorService.BLOCK_LIMIT}`);
+        logger.info(`POLLING_INTERVAL_MS = ${JobMonitorService.POLLING_INTERVAL_MS} ms`);
+        logger.info(`DELAY_MS = ${JobMonitorService.DELAY_MS} ms`);
+        logger.info(`BLOCK_LAG_THRESHOLD = ${JobMonitorService.BLOCK_LAG_THRESHOLD}`);
     }
 }

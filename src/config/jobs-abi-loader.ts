@@ -1,5 +1,5 @@
 import { Interface } from "ethers";
-
+import { logger } from "../utils/logger";
 import AutoLineJob from "../abis/jobs/AutoLineJob.json";
 import D3MJob from "../abis/jobs/D3MJob.json";
 import OracleJob from "../abis/jobs/OracleJob.json";
@@ -32,7 +32,7 @@ export function createJobFromAddress(address: string): Job | undefined {
     const normalized = address.trim().toLowerCase();
     const job = JobRegistry[normalized];
     if (!job) {
-        console.warn(`No ABI or job registered for address: ${address}`);
+        logger.error(`No ABI or job registered for address: ${address}`);
         return undefined;
     }
     return job;

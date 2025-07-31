@@ -1,4 +1,5 @@
 import {Interface, Log} from "ethers";
+import { logger } from "../utils/logger";
 
 export class Job {
 
@@ -43,37 +44,37 @@ export class Job {
 
     public recordExecutedBlocksFromLogs(logs: Log[]) {
         if (logs.length === 0) {
-            console.log(`No logs found for ${this.name}`);
+            logger.debug(`No logs found for ${this.name}`);
             return;
         }
         for (const log of logs) {
             try {
                 const parsed = this.abi.parseLog(log);
                 if (!parsed) {
-                    console.warn(`Could not parse log for job ${this.name}`);
+                    logger.error(`Could not parse log for job ${this.name}`);
                     continue;
                 }
                 if (parsed.name.toLowerCase() === "work") {
                     this.insertExecutedBlock(log.blockNumber)
                 } else {
-                    console.log(`Event "${parsed.name}" from ${this.name} is not a Work event.`);
+                    logger.error(`Event "${parsed.name}" from ${this.name} is not a Work event.`);
                 }
             } catch (err) {
-                console.warn(`Error parsing log for ${this.name} (${this.address}):`, err);
+                logger.error(`Error parsing log for ${this.name} (${this.address}):`, err);
             }
         }
     }
 
     public printJobInfoRow(): void {
-        const jobName = this.name.padEnd(21);
+        const jobName = this.name.padEnd(19);
         const address = this.address.padEnd(44);
-        const latestBlock = (this.getLatestExecutedBlock() ?? "—").toString().padEnd(15);
+        const latestBlock = (this.getLatestExecutedBlock() ?? "—").toString().padEnd(12);
         const displayCount = 3;
         const blocksSlice = this.executedBlocks.slice(0, displayCount);
         const blockList = blocksSlice.join(", ");
         const suffix = this.executedBlocks.length > displayCount ? ", ..." : "";
-        const blockField = (blockList + suffix).padEnd(36);
+        const blockField = (blockList + suffix).padEnd(34);
 
-        console.log(`│ ${jobName}│ ${address}│ ${latestBlock} │ ${blockField}│`);
+        logger.info(`│ ${jobName}│ ${address}│ ${latestBlock} │ ${blockField}│`);
     }
 }
