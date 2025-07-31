@@ -52,7 +52,7 @@ export class JobMonitorService {
             try {
                 const latestBlock = await this.providerService.getCurrentBlockNumber();
                 if (latestBlock <= this.currentBlock + JobMonitorService.BLOCK_LAG_THRESHOLD){
-                    logger.info(`Polling from ${this.currentBlock+1} but need to wait till ${this.currentBlock + JobMonitorService.BLOCK_LAG_THRESHOLD} to update jobMap`);
+                    logger.info(`Avoid polling from ${this.currentBlock+1} to ${latestBlock}. Let's wait till BLOCK_LAG_THRESHOLD: ${this.currentBlock + JobMonitorService.BLOCK_LAG_THRESHOLD}`);
                     return;
                 }
                 await this.trackAndUpdateJobsInRange(this.currentBlock + 1, latestBlock);

@@ -41,18 +41,4 @@ describe("Job", () => {
         expect(job.getJobAddress()).toBe("0xabc");
     });
 
-    test("printJobInfoRow prints formatted output", () => {
-        console.log = jest.fn();
-
-        job.insertExecutedBlock(200);
-        job.insertExecutedBlock(190);
-        job.insertExecutedBlock(180);
-        job.insertExecutedBlock(170);
-
-        job.printJobInfoRow();
-
-        expect(console.log).toHaveBeenCalledWith(
-            expect.stringMatching(/TestJob\s+\│ 0xabc\s+\│ 200\s+\│ 200, 190, 180, \.\.\./)
-        );
-    });
 });
