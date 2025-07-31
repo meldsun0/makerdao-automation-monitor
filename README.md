@@ -60,9 +60,10 @@ npm run dev
 ### Example Configuration
 
 ```yaml
-RPC_URL=https://mainnet.infura.io/v3/YOUR_INFURA_KEY
+RPC_URL=https://mainnet.infura.io/v3/a32b31...
 SEQUENCER_ADDRESS=0x238b4E35dAed6100C6162fAE4510261f88996EC9
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your_webhook
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/140013.../WWJDqu...
+LOG_LEVEL=info
  ```    
 ---
 ### Docker

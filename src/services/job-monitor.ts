@@ -117,6 +117,7 @@ export class JobMonitorService {
     }
 
     private logConfig(): void {
+        logger.info(`Internal configs:`);
         logger.info(`BLOCK_LIMIT = ${JobMonitorService.BLOCK_LIMIT}`);
         logger.info(`POLLING_INTERVAL_MS = ${JobMonitorService.POLLING_INTERVAL_MS} ms`);
         logger.info(`DELAY_MS = ${JobMonitorService.DELAY_MS} ms`);
