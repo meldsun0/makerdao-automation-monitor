@@ -49,8 +49,8 @@ To run this project locally, you need:
 ### Quickstart
 
 ```bash
-git clone https://github.com/wonderland-quests/challenge-offchain-meldsun0.git
-cd challenge-offchain-meldsun0
+git clone https://github.com/meldsun0/makerdao-automation-monitor.git
+cd makerdao-automation-monitor
 npm install
 # Edit .env with your RPC and Discord webhook
 npm run dev 
